@@ -1,0 +1,167 @@
+@import "tailwindcss";
+
+@theme {
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --animate-fade-in: fadeIn 0.5s ease-out;
+  --animate-slide-up: slideUp 0.5s ease-out;
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+}
+
+@layer base {
+  :root {
+    /* Coffee & Cream Palette */
+    --background: 40 30% 96%;
+    /* Soft Cream */
+    --foreground: 25 20% 20%;
+    /* Dark Espresso */
+
+    --card: 0 0% 100%;
+    --card-foreground: 25 20% 20%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 25 20% 20%;
+
+    --primary: 28 45% 35%;
+    /* Rich Coffee Brown */
+    --primary-foreground: 40 30% 96%;
+    /* Cream text */
+
+    --secondary: 15 60% 96%;
+    /* Soft Blush/Pinkish White */
+    --secondary-foreground: 25 20% 20%;
+
+    --muted: 30 20% 90%;
+    /* Beige Gray */
+    --muted-foreground: 25 10% 50%;
+
+    --accent: 28 30% 85%;
+    /* Light Coffee/Latte */
+    --accent-foreground: 28 45% 35%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 28 20% 88%;
+    /* Latte Border */
+    --input: 28 20% 88%;
+    --ring: 28 45% 35%;
+
+    --radius: 1rem;
+    /* Softer, rounder corners */
+  }
+
+  /* Dark mode - Dark Chocolate Theme */
+  .dark {
+    --background: 25 25% 10%;
+    /* Very Dark Chocolate */
+    --foreground: 40 30% 90%;
+    /* Cream text */
+
+    --card: 25 25% 12%;
+    --card-foreground: 40 30% 90%;
+
+    --popover: 25 25% 12%;
+    --popover-foreground: 40 30% 90%;
+
+    --primary: 28 50% 55%;
+    /* Lighter Roast */
+    --primary-foreground: 25 25% 10%;
+
+    --secondary: 25 20% 18%;
+    --secondary-foreground: 40 30% 90%;
+
+    --muted: 25 20% 18%;
+    --muted-foreground: 40 20% 70%;
+
+    --accent: 25 20% 22%;
+    --accent-foreground: 40 30% 90%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 25 20% 22%;
+    --input: 25 20% 22%;
+    --ring: 28 50% 55%;
+  }
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    background-image:
+      radial-gradient(circle at 10% 20%, hsl(var(--secondary) / 0.5) 0%, transparent 20%),
+      radial-gradient(circle at 90% 80%, hsl(var(--accent) / 0.3) 0%, transparent 20%);
+    background-attachment: fixed;
+  }
+}
+
+/* Glassmorphism Utilities */
+.glass {
+  background-color: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 8px 32px 0 rgba(111, 78, 55, 0.1);
+  /* Brown-tinted shadow */
+}
+
+.glass-dark {
+  background-color: rgba(30, 20, 15, 0.4);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
