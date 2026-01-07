@@ -1,0 +1,16 @@
+{
+  "name": "My spaces",
+  "short_name": "My spaces",
+  "description": "A shared space for us.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FDFCDC",
+  "theme_color": "#FDFCDC",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png"
+    }
+  ]
+}
