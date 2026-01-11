@@ -84,7 +84,8 @@ export default function GalleryPage() {
                     url: publicUrl,
                     caption: caption,
                     author: currentUser,
-                    date: new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+                    date: new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true }),
+                    created_at: new Date().toISOString()
                 }])
                 .select()
                 .single();

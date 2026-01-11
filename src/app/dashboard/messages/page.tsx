@@ -25,12 +25,16 @@ export default function MessagesPage() {
     const todayDate = new Date().toLocaleDateString();
 
     useEffect(() => {
-        const user = localStorage.getItem("currentUser");
-        if (user) {
+        let user = localStorage.getItem("currentUser");
+        if (!user) {
+            user = currentUser; // Default to "Aami"
+        } else {
             setCurrentUser(user);
-            setTargetUser(user === "Aami" ? "Lechu" : "Aami");
-            fetchMessages(user, user === "Aami" ? "Lechu" : "Aami");
         }
+
+        const partner = user === "Aami" ? "Lechu" : "Aami";
+        setTargetUser(partner);
+        fetchMessages(user, partner);
     }, [todayDate]);
 
     const fetchMessages = async (me: string, partner: string) => {
@@ -95,7 +99,7 @@ export default function MessagesPage() {
             </div>
 
             {/* Write Message Section */}
-            <div className="bg-gradient-to-br from-primary/5 to-secondary rounded-3xl p-8 border border-primary/10 shadow-sm relative overflow-hidden">
+            <div className="bg-gradient-to-br from-primary/5 to-secondary rounded-3xl p-4 md:p-8 border border-primary/10 shadow-sm relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-4 opacity-10">
                     <Send className="w-24 h-24" />
                 </div>

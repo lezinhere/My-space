@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Calendar, Trash2, Lock, Loader2 } from "lucide-react";
+import { Plus, Calendar, Trash2, Lock, Loader2, Mic, Square, Play, Pause } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
 
@@ -11,6 +11,7 @@ type DiaryEntry = {
     date: string;
     content: string;
     author: string;
+    audio_url?: string;
     created_at: string;
 };
 
@@ -20,6 +21,15 @@ export default function DiaryPage() {
     const [isAdding, setIsAdding] = useState(false);
     const [currentUser, setCurrentUser] = useState("Aami");
     const [loading, setLoading] = useState(true);
+
+    // Audio State
+    const [isRecording, setIsRecording] = useState(false);
+    const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+    const [audioUrl, setAudioUrl] = useState<string | null>(null);
+    const [recordingDuration, setRecordingDuration] = useState(0);
+    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+    const chunksRef = useRef<Blob[]>([]);
+    const timerRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
         const user = localStorage.getItem("currentUser");
@@ -41,14 +51,85 @@ export default function DiaryPage() {
         setLoading(false);
     };
 
+    const startRecording = async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const mediaRecorder = new MediaRecorder(stream);
+            mediaRecorderRef.current = mediaRecorder;
+            chunksRef.current = [];
+
+            mediaRecorder.ondataavailable = (e) => {
+                if (e.data.size > 0) chunksRef.current.push(e.data);
+            };
+
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+                setAudioBlob(blob);
+                setAudioUrl(URL.createObjectURL(blob));
+                stream.getTracks().forEach(track => track.stop());
+            };
+
+            mediaRecorder.start();
+            setIsRecording(true);
+
+            // Timer
+            let seconds = 0;
+            setRecordingDuration(0);
+            timerRef.current = setInterval(() => {
+                seconds++;
+                setRecordingDuration(seconds);
+            }, 1000);
+
+        } catch (err) {
+            console.error("Error with mic", err);
+            alert("Could not access microphone.");
+        }
+    };
+
+    const stopRecording = () => {
+        if (mediaRecorderRef.current && isRecording) {
+            mediaRecorderRef.current.stop();
+            setIsRecording(false);
+            if (timerRef.current) clearInterval(timerRef.current);
+        }
+    };
+
+    const clearAudio = () => {
+        setAudioBlob(null);
+        setAudioUrl(null);
+        setRecordingDuration(0);
+    };
+
+    const formatDuration = (sec: number) => {
+        const m = Math.floor(sec / 60);
+        const s = sec % 60;
+        return `${m}:${s < 10 ? '0' : ''}${s}`;
+    };
+
     const saveEntry = async () => {
-        if (!newEntry.trim()) return;
+        if (!newEntry.trim() && !audioBlob) return;
+
+        let uploadedAudioUrl = "";
+
+        if (audioBlob) {
+            // Upload Audio
+            const fileName = `audio-${Date.now()}.webm`;
+            const { data: uploadData, error: uploadError } = await supabase.storage
+                .from('memories') // Reusing memories bucket
+                .upload(fileName, audioBlob);
+
+            if (!uploadError) {
+                const { data: { publicUrl } } = supabase.storage.from('memories').getPublicUrl(fileName);
+                uploadedAudioUrl = publicUrl;
+            }
+        }
 
         const optimisticEntry: DiaryEntry = {
             id: "temp-" + Date.now(),
-            date: new Date().toLocaleDateString(),
+            date: new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true }),
             content: newEntry,
             author: currentUser,
+            audio_url: uploadedAudioUrl,
             created_at: new Date().toISOString(),
         };
 
@@ -56,6 +137,7 @@ export default function DiaryPage() {
         setEntries([optimisticEntry, ...entries]);
         setIsAdding(false);
         setNewEntry("");
+        clearAudio();
 
         // DB Call
         const { data, error } = await supabase
@@ -63,7 +145,8 @@ export default function DiaryPage() {
             .insert([{
                 author: currentUser,
                 content: optimisticEntry.content,
-                date: optimisticEntry.date
+                date: optimisticEntry.date,
+                audio_url: uploadedAudioUrl
             }])
             .select()
             .single();
@@ -129,6 +212,30 @@ export default function DiaryPage() {
                                 placeholder="Dear Diary..."
                                 className="w-full min-h-[150px] bg-secondary/30 p-4 rounded-xl resize-none outline-none focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-muted-foreground/50 font-handwriting text-lg leading-relaxed"
                             />
+
+                            {/* Audio Recorder Controls */}
+                            <div className="mt-4 flex items-center gap-4">
+                                {!isRecording && !audioUrl && (
+                                    <button onClick={startRecording} className="flex items-center gap-2 text-sm font-medium text-primary bg-primary/10 px-3 py-1.5 rounded-full hover:bg-primary/20 transition-colors">
+                                        <Mic className="w-4 h-4" /> Record Voice
+                                    </button>
+                                )}
+
+                                {isRecording && (
+                                    <button onClick={stopRecording} className="flex items-center gap-2 text-sm font-medium text-destructive bg-destructive/10 px-3 py-1.5 rounded-full hover:bg-destructive/20 transition-colors animate-pulse">
+                                        <Square className="w-4 h-4" /> Stop ({formatDuration(recordingDuration)})
+                                    </button>
+                                )}
+
+                                {audioUrl && (
+                                    <div className="flex items-center gap-2 bg-secondary px-3 py-1 rounded-full">
+                                        <audio src={audioUrl} controls className="h-6 w-32" />
+                                        <button onClick={clearAudio} className="text-secondary-foreground/60 hover:text-destructive">
+                                            <Trash2 className="w-3 h-3" />
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
                             <div className="flex justify-end gap-3 mt-4">
                                 <button
                                     onClick={() => setIsAdding(false)}
@@ -185,6 +292,11 @@ export default function DiaryPage() {
                                 <p className="leading-relaxed whitespace-pre-wrap text-foreground/90 font-handwriting text-lg">
                                     {entry.content}
                                 </p>
+                                {entry.audio_url && (
+                                    <div className="mt-4">
+                                        <audio controls src={entry.audio_url} className="w-full" />
+                                    </div>
+                                )}
                             </div>
                         </motion.div>
                     ))

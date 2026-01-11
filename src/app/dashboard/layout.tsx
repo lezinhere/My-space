@@ -34,6 +34,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="flex h-screen bg-background/50">
             {/* Desktop Sidebar */}
             <aside className="hidden md:flex w-64 flex-col bg-card/50 backdrop-blur-sm border-r border-border p-4">
+                {/* ... Sidebar Content ... */}
                 <div className="flex items-center gap-3 px-4 py-8 mb-2">
                     <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/20 text-primary-foreground">
                         <span className="font-bold text-lg font-outfit">{user[0]}</span>
@@ -74,6 +75,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </div>
             </aside>
 
+            {/* Mobile Header (Top Bar) */}
+            <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-background border-b border-border z-50 flex items-center justify-between px-4 shadow-sm">
+                <h1 className="font-outfit font-bold text-lg text-foreground">{APP_NAME}</h1>
+                <Link href="/login" className="p-2 text-foreground hover:text-destructive transition-colors flex items-center gap-2">
+                    <span className="text-xs font-semibold">LOGOUT</span>
+                    <LogOut className="w-5 h-5" />
+                </Link>
+            </div>
+
             {/* Mobile Bottom Nav */}
             <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-black/90 backdrop-blur-xl border-t border-border z-50 pb-safe shadow-[0_-5px_10px_rgba(0,0,0,0.02)]">
                 <div className="flex justify-around items-center p-2">
@@ -106,7 +116,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
 
             {/* Main Content */}
-            <main className="flex-1 overflow-y-auto pb-24 md:pb-8">
+            <main className="flex-1 overflow-y-auto pb-24 pt-20 md:pt-8 md:pb-8">
                 <div className="max-w-5xl mx-auto p-4 md:p-8 animate-fade-in">
                     {children}
                 </div>
