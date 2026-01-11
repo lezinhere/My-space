@@ -140,14 +140,19 @@ export default function DiaryPage() {
         clearAudio();
 
         // DB Call
+        const payload: any = {
+            author: currentUser,
+            content: optimisticEntry.content,
+            date: optimisticEntry.date
+        };
+
+        if (uploadedAudioUrl) {
+            payload.audio_url = uploadedAudioUrl;
+        }
+
         const { data, error } = await supabase
             .from('diary_entries')
-            .insert([{
-                author: currentUser,
-                content: optimisticEntry.content,
-                date: optimisticEntry.date,
-                audio_url: uploadedAudioUrl
-            }])
+            .insert([payload])
             .select()
             .single();
 
@@ -157,6 +162,7 @@ export default function DiaryPage() {
         } else {
             // Revert on error
             console.error("Failed to save", error);
+            alert("Failed to save entry. IMPORTANT: Did you run the SQL to add 'audio_url' column? Text entries might work now, but Audio requires the database update.");
             setEntries(prev => prev.filter(e => e.id !== optimisticEntry.id));
         }
     };
