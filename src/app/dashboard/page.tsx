@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { Loader2, Image as ImageIcon, RefreshCcw } from "lucide-react";
 
 export default function DashboardPage() {
+    const router = useRouter();
     const [user, setUser] = useState<string | null>(null);
     const [latestMemory, setLatestMemory] = useState<any>(null);
     const [loading, setLoading] = useState(true);
@@ -42,14 +44,14 @@ export default function DashboardPage() {
             </header>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Daily Mood Selection Placeholder */}
+                {/* Daily Mood Selection */}
                 <div className="p-6 rounded-3xl bg-card border border-border shadow-sm">
                     <h3 className="font-semibold text-lg mb-2">Daily Mood</h3>
                     <p className="text-muted-foreground text-sm">How are you feeling?</p>
                     <div className="mt-4 flex gap-2">
-                        <div className="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center text-xl cursor-not-allowed opacity-50">😊</div>
-                        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-xl cursor-not-allowed opacity-50">😔</div>
-                        <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-xl cursor-not-allowed opacity-50">😡</div>
+                        <button onClick={() => router.push('/dashboard/mood/happy')} className="w-10 h-10 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center text-xl hover:scale-110 transition-transform cursor-pointer" title="Happy">😊</button>
+                        <button onClick={() => router.push('/dashboard/mood/sad')} className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-xl hover:scale-110 transition-transform cursor-pointer" title="Sad">😔</button>
+                        <button onClick={() => router.push('/dashboard/mood/angry')} className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-xl hover:scale-110 transition-transform cursor-pointer" title="Angry">😡</button>
                     </div>
                 </div>
 
